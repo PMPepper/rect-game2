@@ -1,0 +1,70 @@
+@import 'mixins';
+@import 'theme';
+@import 'functions';
+
+$cText: $cBodyCopy;
+$cBorder: $cBodyCopy;
+$cBG: $colour1;
+$cSelectedBG: $colour6;
+
+.menu {
+  &-list {
+    width: 24rem;
+    background: $cBG;
+    border: 1px solid $cBorder;
+    border-bottom-width: 0.1rem;
+    color: $cText;
+    font-size: 1.5rem;
+    margin-left: -0.3rem;
+
+    box-shadow: 0.2rem 0.2rem rgba(0, 0, 0, 0.2);
+
+    &-item {
+      &_spacer {
+        border-bottom: 0.1rem solid rgba($cBorder, 0.25);
+        margin: $basePadding/4;
+      }
+    }
+  }
+
+  &-action {
+    display: block;
+    text-align: left;
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: $basePadding/2;
+    cursor: pointer;
+    position: relative;
+    outline: none;
+
+    &_isSelectedItem {
+      background: $cSelectedBG;
+    }
+
+    &_disabled {
+      color: rgba($cText, 0.5);
+    }
+
+    &_hasChildren {
+      &:after {
+        $triangleSize: 1.5rem;
+        @include triangle(right, $cText, $triangleSize, sqrt($triangleSize));
+
+        position: absolute;
+        right: 0.5rem;
+        top: 50%;
+        margin-top: - $triangleSize / 2;
+      }
+    }
+
+    &-icon {
+      display: inline-block;
+      width: 1.1rem + ($basePadding/2);
+    }
+
+    &-label {
+
+    }
+  }
+}

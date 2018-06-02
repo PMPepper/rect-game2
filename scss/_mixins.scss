@@ -1,0 +1,252 @@
+@import 'transition-mixins';
+@import 'functions';
+
+//General purpose helpers
+@mixin clearfix() {
+    &:before,
+    &:after {
+        content: "";
+        display: table;
+    }
+    &:after {
+        clear: both;
+    }
+}
+
+@mixin textTruncate() {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@mixin wordBreak() {
+  //Based on: https://css-tricks.com/snippets/css/prevent-long-urls-from-breaking-out-of-container/
+  // These are technically the same, but use both
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  -ms-word-break: break-all;
+  // This is the dangerous one in WebKit, as it breaks things wherever
+  word-break: break-all;
+  // Instead use this non-standard one:
+  word-break: break-word;
+
+  // Adds a hyphen where the word breaks, if supported (No Blink)
+  hyphens: auto;
+}
+
+//Design mixins
+@mixin addBezel($depth, $offX, $offY, $colours) {
+  $shadows:();
+
+  @for $i from 1 through $depth {
+    $shadow:round($i * ($offX / $depth)) round($i * ($offY / $depth)) 0 0 nth($colours, $i);
+    $shadows: append($shadows, $shadow, comma);
+  }
+
+  box-shadow: $shadows;
+}
+
+/// Triangle helper mixin
+/// @param {Direction} $direction - Triangle direction, either `top`, `right`, `bottom` or `left`
+/// @param {Color} $color [currentcolor] - Triangle color
+/// @param {Length} $size [1em] - Triangle size
+@mixin triangle($direction, $color: currentcolor, $size: 1em, $size2: null) {
+  @if not index(top right bottom left, $direction) {
+    @error "Direction must be either `top`, `right`, `bottom` or `left`.";
+  }
+
+  @if($size2 == null) {
+    $size2: $size * 1.5;//size2 is optional
+  }
+
+  width: 0;
+  height: 0;
+  content: '';
+  z-index: 2;
+  border-#{opposite-direction($direction)}: $size2 solid $color;
+  //margin-top:- $size;//TODO fix this?
+
+  $perpendicular-borders: ($size * 0.5) solid transparent;
+
+  @if $direction == top or $direction == bottom {
+    border-left:   $perpendicular-borders;
+    border-right:  $perpendicular-borders;
+  } @else if $direction == right or $direction == left {
+    border-bottom: $perpendicular-borders;
+    border-top:    $perpendicular-borders;
+  }
+}
+
+//Accessible off-screen content
+@mixin offscreen() {
+  height: 1px;
+  left: -10000px;
+  overflow: hidden;
+  position: absolute;
+  top: auto;
+  width: 1px;
+}
+
+@mixin loadingElipsis() {
+  &:after {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    animation: ellipsis steps(4,end) 900ms infinite;
+    content: "\2026"; /* ascii code for the ellipsis character */
+    width: 0;
+  }
+}
+
+@keyframes ellipsis {
+  to {
+    width: 1.0em;
+  }
+}
+
+
+//Layout mixins
+@mixin forBreakpoint($breakpoint) {
+  $breakpoint: getBreakpoint($breakpoint);
+  $config: map-get($breakpoint, "config");
+
+  @include with-layout($config, true) {
+    @if isLastBreakpoint($breakpoint) == true {
+      @if(isFirstBreakpoint($breakpoint) == true) {
+        @content;//there is only one breakpoint, no need for media queries
+      } @else {
+        //first breakpoint (the largest)
+        @media (min-width: pxToRems(getBreakpointMin($breakpoint), 16)) {
+          @content;
+        }
+      }
+    } @else if isFirstBreakpoint($breakpoint) == true {
+      //last breakpoin (the smallest)
+      @media (max-width: pxToRems(getBreakpointMax($breakpoint), 16)) {
+        @content;
+      }
+    } @else {
+      @media (min-width: pxToRems(getBreakpointMin($breakpoint), 16)) and (max-width: pxToRems(getBreakpointMax($breakpoint), 16)) {
+        @content;
+      }
+    }
+  }
+}
+
+@mixin upToBreakpoint($breakpoint) {
+  $breakpoint: getBreakpoint($breakpoint);
+
+  @media (max-width: pxToRems(getBreakpointMax($breakpoint), 16)) {
+    @content;
+  }
+}
+
+@mixin fromBreakpoint($breakpoint) {
+  $breakpoint: getBreakpoint($breakpoint);
+
+  @media (min-width: pxToRems(getBreakpointMin($breakpoint), 16)) {
+    @content;
+  }
+}
+
+@mixin inBreakpoints($start, $end) {
+  $start: getBreakpoint($start);
+  $end: getBreakpoint($end);
+
+  @if(getBreakpointIndex($end) < getBreakpointIndex($start)) {
+    $temp: $start;//temp holds new end
+    $start: $end;//current end is actually start
+    $end: $temp;//original start is now end
+  } @else if (getBreakpointIndex($end) == getBreakpointIndex($start)) {
+    @include forBreakpoint($start) {
+      @content;
+    }
+  }
+
+  //Output here
+  @if(isFirstBreakpoint($start) == true) {
+    @if(isLastBreakpoint($end) == true) {
+      //this... can't happen?
+    } @else {
+      //is the first breakpoint, but not the last breakpoint
+      @media (max-width: pxToRems(getBreakpointMax($end), 16)) {
+        @content;
+      }
+    }
+  } @else if(isLastBreakpoint($end) == true) {
+    //no need for a max width, as it stretches to the end
+    @media (min-width: pxToRems(getBreakpointMin($start), 16)) {
+      @content;
+    }
+  } @else {
+    @media (min-width: pxToRems(getBreakpointMin($start), 16)) and (max-width: pxToRems(getBreakpointMax($end), 16)) {
+      @content;
+    }
+  }
+}
+
+@mixin layoutSizes() {
+  //@each $breakpoint in $breakpoints {
+  @for $bpIndex from 1 through length($breakpoints) {
+    $revesedIndex: length($breakpoints)+1 - $bpIndex;
+    $breakpoint: nth($breakpoints, $revesedIndex);
+    $name: map-get($breakpoint, "name");
+    $columns: getBreakpointColumns($breakpoint);
+    $margin-bottom: getBreakpointGutters($breakpoint);
+
+    @include forBreakpoint($breakpoint) {
+      @for $i from 1 through $columns {
+        &_#{$name}_#{$i} {
+          @include span($i of $columns);
+          margin-bottom: $margin-bottom;
+        }
+      }
+
+      @for $i from 1 through $columns - 1 {
+        &_#{$name}_pre#{$i} {
+          @include pre($i of $columns);
+        }
+
+        &_#{$name}_post#{$i} {
+          @include post($i of $columns);
+        }
+      }
+
+      &_#{$name}_first {
+        @include first();
+      }
+
+      &_#{$name}_last {
+        @include last();
+      }
+    }//end for breakpoint
+
+    //default column mappings
+    @if( $revesedIndex > 1) {
+      @for $j from 1 through ($revesedIndex - 1) {
+        $otherBreakpoint: nth($breakpoints, $revesedIndex - $j);
+        $otherColumns: getBreakpointColumns($otherBreakpoint);
+
+        @include forBreakpoint($otherBreakpoint) {
+          @for $i from 1 through $columns {
+            &_#{$name}_#{$i} {
+              @include span(mapColumnsBetweenBreakpoints($i, $breakpoint, $otherBreakpoint, true) of $otherColumns);
+              margin-bottom: $margin-bottom;
+            }
+          }
+
+          @for $i from 1 through $columns - 1 {
+            &_#{$name}_pre#{$i} {
+              @include pre(mapColumnsBetweenBreakpoints($i, $breakpoint, $otherBreakpoint) of $otherColumns);
+            }
+
+            &_#{$name}_post#{$i} {
+              @include post(mapColumnsBetweenBreakpoints($i, $breakpoint, $otherBreakpoint) of $otherColumns);
+            }
+          }
+        }//end for breakpoint
+      }
+    }//end for each smaller breakpoint
+  }
+}

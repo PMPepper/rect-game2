@@ -1,0 +1,54 @@
+@import 'transition-mixins';
+
+$showTime: 0.3s;
+$hideTime: 0.3s;
+
+.fade {
+  @include transitionFadeVisible($showTime, $hideTime, ease-out);
+}
+
+
+
+.fadeAndSlideUp {
+  @include transitionFadeAndSlideUpVisible($showTime, $hideTime, 4rem);
+}
+
+.slideInRight {
+  @include transitionSlideInRight($showTime, $hideTime, 6rem, ease-in-out);
+}
+
+
+//CSSReveal style transitions
+.fadeInDelay {
+  $fadeShowTime: 0.25s;
+  $fadeShowDelay: 0.25s;
+  $fadeHideTime: 0.25s;
+  $fadeHideDelay: 0s;
+
+  overflow: hidden;
+  opacity: 0;
+
+  &_state{
+    &_closed {
+      visibility: hidden;
+      opacity: 0;
+    }
+
+    &_opening {
+      visibility: visible;
+      opacity: 1;
+      transition: opacity $fadeShowTime linear $fadeShowDelay;
+    }
+
+    &_open {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    &_closing {
+      visibility: visible;
+      opacity: 0;
+      transition: opacity $fadeHideTime linear $fadeHideDelay;
+    }
+  }
+}

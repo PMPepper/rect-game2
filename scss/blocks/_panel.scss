@@ -1,0 +1,67 @@
+@import '../theme';
+
+$cText: $cBodyCopy;
+$cBorder: $colour2;
+$cBG: $colour1;
+
+$cDarkText: $cText;
+$cDarkBorder: #a6a6a6;
+$cDarkBG: $colour7;
+
+.panel {
+  background: $cBG;
+  border: 0.1rem solid $cBorder;
+  font-size: 2rem;
+  display: flex;
+  flex-flow: column;
+
+  text-decoration: none;
+  color: inherit;
+
+  @at-root {
+    a#{&} {
+      @include themeBlockInteraction();
+    }
+  }
+
+  &_theme_dark {
+    background: $cDarkBG;
+  }
+
+  &_fullHeight {
+    height: 100%;
+  }
+
+  &-title {
+    padding: $basePadding * 0.5;
+    border-bottom: 0.1rem solid $cBorder;
+    line-height: 1;
+    font-size: 1.45rem;
+    font-weight: bold;
+    background: $colour7;
+    white-space: nowrap;
+
+    &_theme_dark {
+      border-bottom-color: $cDarkBorder;
+    }
+  }
+
+  &-body {
+    padding: $basePadding/2 $basePadding/2 $basePadding;
+    line-height: 1.2;
+    position: relative;
+    flex-grow: 1;
+
+    &_stretchContents {
+      display: flex;
+      align-items: stretch;
+      flex-flow: row wrap;
+    }
+
+    &_valign_bottom {
+      display: flex;
+      flex-flow: column;
+      justify-content: flex-end;
+    }
+  }
+}

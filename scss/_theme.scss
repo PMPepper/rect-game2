@@ -1,0 +1,338 @@
+//Settings
+$stickyNav: true;
+
+//colours/styles
+$colour0: #000;
+$colour1: #FFF;
+$colour2: #333;
+$colour3: #666;
+$colour4: #999;
+$colour5: #CCC;
+$colour6: #DDD;
+$colour7: #EEE;
+
+$colour10: #556699;
+$colour11: #113355;//pallet4
+$colour12: #112233;//pallet6
+
+$colour20: #0088FF;//pallet29
+
+//Legacy pallet colours
+/*
+$pallet0: #FFF;
+$pallet1: #838682;
+$pallet2: #a8aba8;
+$pallet3: #5b5e5b;
+$pallet4: #004e58;
+$pallet5: #4d838a;
+$pallet6: #00363d;
+$pallet7: #100806;
+$pallet8: #585351;
+$pallet9: #0b0604;
+$pallet10: #038c95;
+$pallet11: #4fafb5;
+$pallet12: #026268;
+$pallet13: #f68f39;
+$pallet14: #f9b175;
+$pallet15: #ac6428;
+$pallet16: #ae253d;
+$pallet17: #c66778;
+$pallet18: #791a2b;
+$pallet19: #1c3443;
+$pallet20: #61717c;
+$pallet21: #14242f;
+
+
+
+$pallet24: #b7b7b7;
+$pallet26: #D9D9D9;
+
+$pallet27: #27AE60;
+$pallet28: #FF7F00;
+$pallet29: #007FFF;
+
+$pallet30: #F3F3F3;
+*/
+
+
+//page
+$cPageBg: $colour6;
+$cMainBg: $colour1;
+
+$pageBg: $cPageBg;
+$mainBg: $cMainBg;
+
+
+//fonts/text
+$fontFamily: Helvetica, Arial, "Sans-serif";
+$bodyCopySize: 1.4rem;
+$bodyCopyLineHeight: 1.2;
+$cBodyCopy: $colour2;
+
+
+$cError: #dd5050;
+$cSuccess: #229944;
+$cWarning: #EE7711;
+$cKeyboardFocus: #FF00FF;//keyboard focus colour
+
+
+//Sizes
+$basePadding: 1.6rem;
+$checkboxSize: 1.8rem;
+
+
+//Theme mixins
+
+@mixin themeBlockInteraction($mouseFocus: false, $mouseColour: $colour7, $keyboardBG: $cKeyboardFocus, $keyboardCol: $colour1) {
+  @if($mouseFocus != false) {
+    .focus_mouse &:focus {
+      background-color: $mouseColour;
+      outline: none;
+    }
+  } @else {
+    &:hover {
+      background: $mouseColour;
+      outline: none;
+    }
+  }
+
+  .focus_keyboard &:focus {
+    background: $keyboardBG;
+    color: $keyboardCol;
+    outline: none;
+  }
+}
+
+@mixin themeTextInteraction($mouseFocus: false, $mouseColour: $colour6, $keyboardCol: $cKeyboardFocus) {
+  @if($mouseFocus != false) {
+    .focus_mouse &:focus {
+      color: $mouseColour;
+      outline: none;
+    }
+  } @else {
+    &:hover {
+      color: $mouseColour;
+      outline: none;
+    }
+  }
+
+  .focus_keyboard &:focus {
+    color: $keyboardCol;
+    outline: none;
+  }
+}
+
+//Component themes
+@mixin themeHR() {
+  border: 0;
+  border-bottom: 0.1px solid $colour5;
+  padding: 0;
+  margin: $basePadding 0;
+}
+
+@mixin themeBtn($size: normal, $light: false) {
+
+  $leftBorderWidth: 0.5rem;
+  $verticalPaddingAdjust: 0;
+
+  @if($light == false) {
+    //dark
+    border: 0;
+    border-left: $leftBorderWidth solid $colour12;
+    color: $colour1;
+    background: $colour11;
+
+    &[disabled] {
+      background: $colour2;
+      border-color: $colour3;
+      pointer-events: none;
+    }
+
+    @include themeBlockInteraction($mouseColour: $colour10);
+  } @else {
+    //light
+    border: 0.1rem solid $colour2;
+    $verticalPaddingAdjust: -0.1;
+    border-left: 0;
+    color: $colour11;
+    background: $colour1;
+    box-shadow: -$leftBorderWidth 0 0 0 $colour11;
+    margin-left: $leftBorderWidth;
+
+    &[disabled] {
+      border-color: $colour4;
+      pointer-events: none;
+      color: $colour4;
+    }
+
+    @include themeTextInteraction($mouseColour: $colour10);
+
+    &:hover,
+    .focus_keyboard &:focus {
+      background: $colour1;
+    }
+  }
+
+  font-size: 1.9rem;
+  line-height: 1.2;
+
+  @if($size == large) {
+    padding: ($basePadding+$verticalPaddingAdjust) $basePadding*2 ($basePadding+$verticalPaddingAdjust) ;
+
+
+    @include upToBreakpoint('phablet') {
+      padding: (($basePadding/2)+$verticalPaddingAdjust) $basePadding*1.5 (($basePadding/2)+$verticalPaddingAdjust);
+    }
+  }
+
+  @if($size == normal) {
+    padding: (($basePadding/2)+$verticalPaddingAdjust) $basePadding*2.5 (($basePadding/2)+$verticalPaddingAdjust);
+
+    @include upToBreakpoint('phablet') {
+      padding: (($basePadding/2)+$verticalPaddingAdjust) $basePadding (($basePadding/2)+$verticalPaddingAdjust);
+    }
+  }
+
+  @if($size == small) {
+    padding: (($basePadding/4)+$verticalPaddingAdjust) $basePadding*1.5 ((($basePadding/4)+$verticalPaddingAdjust)+0.1rem);
+    font-size: 1.65rem;
+
+        @include upToBreakpoint('phablet') {
+          padding: (($basePadding/2)+$verticalPaddingAdjust) $basePadding*1 (($basePadding/2)+$verticalPaddingAdjust);
+        }
+  }
+
+  &_inProgress {
+    cursor: progress;
+  }
+
+
+
+  @include forBreakpoint('mobile') {
+    //padding: 1.5rem 2.5rem;
+    font-size: $basePadding;
+  }
+}
+
+@mixin themeOL($item: 'item', $size: $basePadding*2) {
+  margin-top: -0.1rem;
+
+  counter-reset: ol;
+
+  @include modifyBEMSelector((element: '&-#{$item}')) {
+    margin-top: 0.1rem;
+    background: $colour7;
+    padding: $basePadding/2;
+    border-left: $size solid $colour11;
+
+    &:before {
+      counter-increment: ol;
+      content: counter(ol);
+      color: $colour1;
+      display: inline-block;
+      margin-left: -($size+($basePadding/2));
+      margin-right: ($basePadding/2);
+      width: $size;
+      text-align: center;
+    }
+
+  }
+}
+
+@mixin themeUL ($item: 'item', $type: standard) {
+  @include wordBreak;
+
+  @if($type == standard) {
+    margin-top: -0.1rem;
+  } @else if($type == simple OR $type == basic) {
+    font-size: 1.3rem;
+  }
+
+  @include modifyBEMSelector((element: '&-#{$item}')) {
+    @if($type == standard) {
+      margin-top: 0.1rem;
+      background: $colour7;
+      padding: $basePadding/2;
+      border-left: 0.5rem solid $colour11;
+    } @else if($type == simple) {
+      padding: $basePadding/2 $basePadding/2 $basePadding/2 2.7rem;
+      background: $colour7;
+      position: relative;
+      line-height: 1.2;
+
+      &:before {
+        content: '';
+        display: block;
+        position: absolute;
+        left: 1.2rem;
+        top: 1.2rem;
+        background: $colour12;
+        width: 0.8rem;
+        height: 0.8rem;
+      }
+
+      &:nth-child(even) {
+        background: $colour12;
+      }
+    } @else if($type == basic) {
+      position: relative;
+      line-height: 1.2;
+      padding: 0 0 $basePadding/4 1.2rem;
+
+      &:before {
+        content: '';
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 0.3rem;
+        background: $colour12;
+        width: 0.8rem;
+        height: 0.8rem;
+      }
+    }
+  }
+}
+
+
+@mixin themeDL($term: 'key', $definition: 'value', $termWidth: 10rem) {
+  font-size: 1.3rem;
+  display: flex;
+  flex-flow: row wrap;
+  overflow: hidden;
+  border: 0.1rem solid $colour6;
+  align-items: stretch;
+  text-align: left;
+
+  @include modifyBEMSelector((element: '&-#{$term}')) {
+    @include wordBreak;
+    background: $colour7;
+    padding: $basePadding/4;
+
+    @if(strip-unit($termWidth) < 0) {
+      flex-basis: calc(100% - #{- $termWidth});
+    } @else {
+      flex-basis: $termWidth;
+    }
+
+    &:nth-of-type(2n) {
+      background: $colour1;
+    }
+  }
+
+  @include modifyBEMSelector((element: '&-#{$definition}')) {
+    @include wordBreak;
+    background: $colour7;
+    padding: $basePadding/4;
+    font-weight: bold;
+
+    @if(strip-unit($termWidth) < 0) {
+      flex-basis: - $termWidth;
+    } @else {
+      flex-basis: calc(100% - #{$termWidth});
+    }
+
+    &:nth-of-type(2n) {
+      background: $colour1;
+    }
+  }
+}

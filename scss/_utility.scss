@@ -1,0 +1,14 @@
+@import 'mixins';
+
+
+.u-offscreen {
+  @include offscreen;
+}
+
+.u-isFocussed {
+  visibility: hidden;
+
+  *:focus > & {
+    visibility: visible;
+  }
+}

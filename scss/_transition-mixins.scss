@@ -1,0 +1,147 @@
+//LEGACY?
+
+@mixin transitionFade($showTime: 0.3s, $hideTime: 0.3s, $display:block, $transition:ease-in-out, $showDelay: 0s, $hideDelay: 0s) {
+  display: none;
+  opacity: 0;
+
+  &_transition {
+    &_showing {
+      display: $display;
+      transition: opacity $showTime $transition $showDelay;
+    }
+
+    &_shown {
+      display: $display;
+      opacity: 1;
+    }
+
+    &_hiding {
+      display: $display;
+      transition: opacity $hideTime $transition $hideDelay;
+      opacity: 1;
+    }
+  }
+
+  //will be added one tick after showing, so new value can take effect, then
+  //transition can kick in
+  &_transition_showing#{&}_active {
+    opacity: 1;
+  }
+
+  //will be added one tick after closing, so new value can take effect, then
+  //transition can kick in.
+  &_transition_hiding#{&}_active {
+    opacity: 0;
+  }
+}
+
+@mixin transitionFadeVisible($showTime: 0.3s, $hideTime: 0.3s, $transition:ease-in-out, $showDelay: 0s, $hideDelay: 0s) {
+  visibility: hidden;
+  opacity: 0;
+
+  &_transition {
+    &_showing {
+      visibility: visible;
+      transition: opacity $showTime $transition $showDelay;
+    }
+
+    &_shown {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    &_hiding {
+      visibility: visible;
+      transition: opacity $hideTime $transition $hideDelay;
+      opacity: 1;
+    }
+  }
+
+  //will be added one tick after showing, so new value can take effect, then
+  //transition can kick in
+  &_transition_showing#{&}_active {
+    opacity: 1;
+  }
+
+  //will be added one tick after closing, so new value can take effect, then
+  //transition can kick in.
+  &_transition_hiding#{&}_active {
+    opacity: 0;
+  }
+}
+
+@mixin transitionFadeAndSlideUpVisible($showTime: 0.3s, $hideTime: 0.3s, $distance:1rem, $transition:ease-in-out, $showDelay: 0s, $hideDelay: 0s) {
+  visibility: hidden;
+  opacity: 0;
+  transform: translate(0, $distance);
+
+  &_transition {
+    &_showing {
+      visibility: visible;
+      transition: opacity $showTime $transition $showDelay, transform $showTime*0.75 ease-out $showDelay;
+    }
+
+    &_shown {
+      visibility: visible;
+      opacity: 1;
+      transform: translate(0, 0);
+    }
+
+    &_hiding {
+      visibility: visible;
+      transition: opacity $hideTime $transition $hideDelay;
+      opacity: 1;
+      transform: translate(0, 0);
+    }
+  }
+
+  //will be added one tick after showing, so new value can take effect, then
+  //transition can kick in
+  &_transition_showing#{&}_active {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+
+  //will be added one tick after closing, so new value can take effect, then
+  //transition can kick in.
+  &_transition_hiding#{&}_active {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+}
+
+
+@mixin transitionSlideInRight($showTime: 0.3s, $hideTime: 0.3s, $distance:5rem, $transition:ease-out, $showDelay: 0s, $hideDelay: 0s) {
+  visibility: hidden;
+  transform: translate(-$distance, 0);
+
+  &_transition {
+    &_showing {
+      visibility: visible;
+      transition: transform $showTime $transition $showDelay;
+    }
+
+    &_shown {
+      visibility: visible;
+      transform: translate(0, 0);
+    }
+
+    &_hiding {
+      visibility: visible;
+      transition: transform $hideTime $transition $hideDelay;
+      transform: translate(0, 0);
+    }
+  }
+
+  //will be added one tick after showing, so new value can take effect, then
+  //transition can kick in
+  &_transition_showing#{&}_active {
+    transform: translate(0, 0);
+  }
+
+  //will be added one tick after closing, so new value can take effect, then
+  //transition can kick in.
+  &_transition_hiding#{&}_active {
+    transform: translate(-$distance, 0);
+  }
+}

@@ -1,0 +1,34 @@
+@import "functions";
+@import "mixins";
+@import "theme";
+
+.l-main {
+  @include container(getMaxWidth()); // establish a layout context
+  position: relative;
+  min-width: 320px;
+}
+
+.l-subContainer {
+  @include clearfix;
+
+  &_matchHeight {
+    display: flex;
+
+    flex-flow: row wrap;
+  }
+
+  &_noBleed {
+    margin-left: -$basePadding/4;
+    margin-right: -$basePadding/4;
+    margin-bottom: -$basePadding/2;
+  }
+}
+
+.l-cell {
+  @include layoutSizes();
+
+  &_fullHeightContent {
+    display: flex;
+    flex-flow: column;
+  }
+}

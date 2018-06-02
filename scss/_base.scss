@@ -1,0 +1,19 @@
+@import 'theme';
+
+html, body {
+  font: normal normal 10px/#{$bodyCopyLineHeight} $fontFamily;
+  overflow-x: hidden;
+  width: 100vw;
+  height: 100vh;
+  color: $cBodyCopy;
+  background: $pageBg;
+}
+
+#app {
+  width: 100vw;
+  height: 100vh;
+}
+
+*:focus {
+  outline: none;
+}

@@ -1,0 +1,216 @@
+//@import 'transition-mixins';
+
+$showTime: 0.3s;
+$hideTime: 0.3s;
+$showDelay: 0s;
+$hideDelay: 0s;
+$transition: linear;
+
+.fade {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity $showTime $transition $showDelay;//show transition
+  width: 100%;//needed if used inside a flex element
+  flex-basis: 100%;
+  flex-grow: 1;
+
+  &_state {
+    &_showing {
+      visibility: visible;
+      transition: opacity $showTime $transition $showDelay;//show transition
+    }
+
+    &_shown {
+      visibility: visible;
+      opacity: 1;
+      transition: opacity $hideTime $transition $hideDelay;//hide transition
+    }
+
+    &_hiding {
+      visibility: visible;
+      transition: opacity $hideTime $transition $hideDelay;//hide transition
+    }
+  }
+
+  //will be added one tick after showing, so new value can take effect, then
+  //transition can kick in
+  &_state_showing#{&}_active {
+    opacity: 1;
+  }
+
+  //will be added one tick after closing, so new value can take effect, then
+  //transition can kick in.
+  &_state_hiding#{&}_active {
+    opacity: 0;
+  }
+}
+
+
+.fadeBlkDsp {
+  display: none;
+  opacity: 0;
+  transition: opacity $showTime $transition $showDelay;//show transition
+
+  &_state {
+    &_showing {
+      display: block;
+      transition: opacity $showTime $transition $showDelay;//show transition
+    }
+
+    &_shown {
+      display: block;
+      opacity: 1;
+      transition: opacity $hideTime $transition $hideDelay;//hide transition
+    }
+
+    &_hiding {
+      display: block;
+      transition: opacity $hideTime $transition $hideDelay;//hide transition
+    }
+  }
+
+  //will be added one tick after showing, so new value can take effect, then
+  //transition can kick in
+  &_state_showing#{&}_active {
+    opacity: 1;
+  }
+
+  //will be added one tick after closing, so new value can take effect, then
+  //transition can kick in.
+  &_state_hiding#{&}_active {
+    opacity: 0;
+  }
+}
+
+
+.verticalSlide {
+  overflow: hidden;
+
+  &_state{
+    &_hidden {
+      visibility: hidden;
+      height: 0;
+    }
+
+    &_showing {
+      visibility: visible;
+      transition: height $showTime ease-in-out;
+    }
+
+    &_shown {
+      visibility: visible;
+      height: auto;
+    }
+
+    &_hiding {
+      visibility: visible;
+      transition: height $hideTime ease-in-out;
+    }
+  }
+}
+
+.fadeAndVerticalSlide {
+  overflow: hidden;
+  opacity: 0;
+
+  &_state{
+    &_hidden {
+      visibility: hidden;
+      opacity: 0;
+      height: 0;
+    }
+
+    &_showing {
+      visibility: visible;
+      opacity: 1;
+      transition: height $showTime ease-in-out, opacity $showTime linear;
+    }
+
+    &_shown {
+      visibility: visible;
+      opacity: 1;
+      height: auto;
+    }
+
+    &_hiding {
+      visibility: visible;
+      opacity: 0;
+      transition: height $hideTime ease-in-out, opacity $showTime linear;
+    }
+  }
+}
+
+
+$fadeRevealTime: 0.25s;
+$slideRevealTime: 0.25s;
+$fadeHideTime: 0.25s;
+$slideHideTime: 0.25s;
+
+/*$fadeRevealTime: 5s;
+$slideRevealTime: 5s;
+$fadeHideTime: 5s;
+$slideHideTime: 5s;*/
+
+.fadeThenVerticalSlide {
+  overflow: hidden;
+  opacity: 0;
+
+  &_state{
+    &_hidden {
+      visibility: hidden;
+      height: 0;
+      opacity: 0;
+    }
+
+    &_showing {
+      visibility: visible;
+    }
+
+    &_shown {
+      visibility: visible;
+      height: auto;
+      opacity: 1;
+    }
+
+    &_hiding {
+      visibility: visible;
+      transition: opacity $fadeHideTime linear, height $slideHideTime ease-in-out $fadeHideTime;
+    }
+  }
+
+  //will be added one tick after showing, so new value can take effect, then
+  //transition can kick in
+  &_state_showing#{&}_active {
+    opacity: 1;
+    transition: height $slideRevealTime ease-in-out, opacity $fadeRevealTime linear $slideRevealTime;
+  }
+}
+
+/*
+.fade {
+  transition: opacity $showTime linear;
+
+  &_state {
+    &_showing {
+      opacity: 1;
+    }
+
+    &_shown {
+      opacity: 1;
+    }
+
+    &_hiding {
+      opacity: 0;
+    }
+
+    &_hidden {
+      display: none;
+      opacity: 0;
+    }
+
+  }
+}*/
+
+.fadeVisible {
+
+}

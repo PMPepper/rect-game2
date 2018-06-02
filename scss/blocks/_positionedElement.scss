@@ -1,0 +1,6 @@
+@import '../zIndexes';
+
+.positionedElement {
+  position: fixed;
+  z-index: $positionedElement
+}

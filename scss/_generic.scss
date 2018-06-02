@@ -1,0 +1,234 @@
+@import 'theme';
+
+.g {
+  &-h3 {
+    font-size: 1.65rem;
+    margin-bottom: $basePadding/2;
+    font-weight: bold;
+    line-height: 1.2;
+
+    &_align_center {
+      text-align: center;
+    }
+  }
+
+  &-h4 {
+    font-size: 1.4rem;
+    margin-bottom: $basePadding/2;
+    font-weight: bold;
+    line-height: 1.2;
+  }
+
+  &-bodyCopy {
+    font-size: 1.3rem;
+    margin-bottom: $basePadding/2;
+    line-height: 1.2;
+
+    &_center {
+      text-align: center;
+    }
+  }
+
+  &-largeText {
+    font-size: 1.65rem;
+  }
+
+  &-link {
+    color: $colour11;
+  }
+
+  &-linkAction {
+    display: inline;
+    color: $colour20;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    border-bottom: dashed 0.1rem currentColor;
+    text-decoration: none;
+
+    &_disabled {
+      opacity: 0.5;
+    }
+  }
+
+  &-blankButton {
+    display: inline;
+    color: inherit;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    text-align: inherit;
+
+    &_fullSize {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  &-phone {
+    color: $colour11;
+  }
+
+  &-space {
+    margin-bottom: $basePadding;
+  }
+
+  &-spaceSmall {
+    margin-bottom: $basePadding/2;
+  }
+
+  &-simpleBox {
+    padding: $basePadding/2;
+    background: $colour1;
+  }
+
+  &-hr {
+    @include themeHR();
+  }
+
+  &-btns {
+    text-align: center;
+    margin-bottom: -$basePadding/2;
+
+    //TODO margin bottom? need to add a gap between lines
+
+    > * {
+      margin-right: $basePadding/2;
+      margin-bottom: $basePadding/2;
+
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+
+    &_right {
+      text-align: right;
+    }
+
+    &_left {
+      text-align: left;
+    }
+
+    &_white {
+      background: $colour1;
+      padding: $basePadding/2 $basePadding/2 0;
+      margin: 0;
+    }
+  }
+
+  &-btn {
+    @include themeBtn();
+
+    &_secondary {
+      @include themeBtn($light: true);
+    }
+
+    &_size_small {
+      @include themeBtn($size: small);
+    }
+
+    &_size_large {
+      @include themeBtn($size: large);
+    }
+
+    &_secondary#{&}_size_small {
+      @include themeBtn($light: true, $size: small);
+    }
+
+    &_secondary#{&}_size_large {
+      @include themeBtn($light: true, $size: large);
+    }
+
+    > * {
+     pointer-events: none;
+    }
+  }
+
+  &-ol {
+    @include themeOL();
+  }
+
+  &-ul {
+    @include themeUL();
+  }
+
+  &-simpleUL {
+    @include themeUL($type: simple);
+  }
+
+  &-basicUL {
+    @include themeUL($type: basic);
+  }
+
+  &-dl {
+    @include themeDL($termWidth: 15rem);
+  }
+
+  &-loadingHolder,
+  &-modalLoadingHolder {
+    width: 15rem;
+    height: 15rem;
+    margin: $basePadding auto;
+    position: relative;
+  }
+
+  &-loadingHolder_absolute {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    z-index: 3;
+    margin: 0;
+  }
+
+  &-loadingHolder_size_small {
+    width: 7rem;
+    height: 7rem;
+  }
+
+  &-error {
+    color: $cError;
+  }
+
+  &-warning {
+    color: $cWarning;
+  }
+
+  &-confirm-label {
+    cursor: pointer;
+
+    > .checkbox {
+      margin-left: 1rem;
+    }
+
+    &-text {
+      font-size: 1.65rem;
+    }
+  }
+
+  &-isOK {
+    color: $cSuccess;
+  }
+
+  &-isError {
+    color: $cError;
+  }
+
+  &-panelContent {
+    background: $colour1;
+    padding: $basePadding/2;
+    flex-grow: 1;
+  }
+
+  &-pending {
+    opacity: 1;
+    transition: opacity 0.5s;
+
+    &_isPending {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+}

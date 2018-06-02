@@ -1,0 +1,82 @@
+@import "functions";
+
+
+//susy config (use desktop as default )
+
+//-internal values
+$desktopMaxWidth: 1400px;
+
+$susy: (
+  flow: ltr,
+  math: fluid,
+  output: float,
+  gutter-position: inside-static,
+  container: auto,
+  container-position: center,
+  columns: 12,
+  gutters: strip-unit(8rem)/(strip-unit($desktopMaxWidth)/12),
+  column-width: $desktopMaxWidth / 12,
+  global-box-sizing: content-box,
+  last-flow: to,
+  debug: (
+    image: hide,
+    color: rgba(#66f, .25),
+    output: background,
+    toggle: top right,
+  ),
+  use-custom: (
+    background-image: true,
+    background-options: false,
+    box-sizing: true,
+    clearfix: false,
+    rem: true,
+  )
+);
+
+$susy-tablet-landscape: map-merge($susy, ());
+
+$susy-tablet-portrait: map-merge($susy-tablet-landscape, (
+  columns: 3
+));
+
+$susy-phablet: map-merge($susy-tablet-portrait, (
+  columns: 2
+));
+
+$susy-mobile: map-merge($susy-phablet, (
+  columns: 1
+));
+
+
+//breakpoints
+$breakpoints:
+  (
+    "name": "mobile",
+    "max": 480px,
+    "config": $susy-mobile
+  ),
+  (
+    "name": "phablet",
+    "max": 640px,
+    "config": $susy-phablet
+  ),
+  (
+    "name": "tabletPortrait",
+    "max": 768px,
+    "config": $susy-tablet-portrait
+  ),
+  (
+    "name": "tabletLandscape",
+    "max": 1024px,
+    "config": $susy-tablet-landscape
+  ),
+  (
+    "name": "desktop",
+    "max": $desktopMaxWidth,
+    "config": $susy
+  );
+
+//BEM
+
+$elementSeparator: unquote('-');
+$modifierSeparator:_;

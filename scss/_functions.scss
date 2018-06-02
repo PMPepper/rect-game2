@@ -1,0 +1,556 @@
+
+// general purpose methods
+@function strip-unit($number) {
+  @if type-of($number) == 'number' and not unitless($number) {
+    @return $number / ($number * 0 + 1);
+  }
+
+  @return $number;
+}
+
+@function pxToRems($val, $scale:10) {
+  $remNumber: strip-unit($val) / $scale;
+  @return $remNumber + 0rem;
+}
+
+@function opposite-direction($directions) {
+  $opposite-directions: ();
+  $direction-map: (
+    'top':    'bottom',
+    'right':  'left',
+    'bottom': 'top',
+    'left':   'right',
+    'center': 'center',
+    'ltr':    'rtl',
+    'rtl':    'ltr'
+  );
+
+  @each $direction in $directions {
+    $direction: to-lower-case($direction);
+
+    @if map-has-key($direction-map, $direction) {
+      $opposite-directions: append($opposite-directions, unquote(map-get($direction-map, $direction)));
+    } @else {
+      @warn "No opposite direction can be found for `#{$direction}`. Direction omitted.";
+    }
+  }
+
+  @return $opposite-directions;
+}
+
+//layout functions
+@function getBreakpointByName($name) {
+  @each $breakpoint in $breakpoints {
+    @if(map-get($breakpoint, "name") == $name) {
+      @return $breakpoint;
+    }
+  }
+
+  @warn Unable to find breakpoint "#{$name}";
+
+  @return null;
+}
+
+@function getBreakpoint($breakpoint) {
+  @if(type-of($breakpoint) == 'string') {
+    @return getBreakpointByName($breakpoint);
+  } @else {
+    @return $breakpoint;
+  }
+}
+
+@function getNextBreakpoint($breakpoint) {
+  $breakpoint: getBreakpoint($breakpoint);
+  $index: getBreakpointIndex($breakpoint);
+
+  @if($index == length($breakpoints)) {
+    @return null;
+  }
+
+  @return nth($breakpoints, $index + 1);
+}
+
+@function getPrevBreakpoint($breakpoint) {
+  $breakpoint: getBreakpoint($breakpoint);
+  $index: getBreakpointIndex($breakpoint);
+
+  @if($index == 1) {
+    @return null;
+  }
+
+  @return nth($breakpoints, $index - 1);
+}
+
+@function getBreakpointIndex($breakpoint) {
+  $breakpoint: getBreakpoint($breakpoint);
+
+  @for $i from 1 through length($breakpoints) {
+    $bp: nth($breakpoints, $i);
+
+    @if map-get($bp, "name") == map-get($breakpoint, "name") {
+      @return $i;
+    }
+  }
+
+  @return null;
+}
+
+@function getBreakpointColumns($breakpoint) {
+  $breakpoint: getBreakpoint($breakpoint);
+
+  @return map-get(map-get($breakpoint, "config"), "columns");
+}
+
+@function getBreakpointGutters($breakpoint) {
+  @return map-get(map-get($breakpoint, "config"), "gutters") * map-get(map-get($breakpoint, "config"), "column-width");
+}
+
+@function getBreakpointConfig($breakpoint, $config) {
+  $breakpoint: getBreakpoint($breakpoint);
+
+  @return map-get($breakpoint, $config);
+}
+
+@function isFirstBreakpoint($breakpoint) {
+  $breakpoint: getBreakpoint($breakpoint);
+
+  @return getBreakpointIndex($breakpoint) == 1;
+}
+
+@function isLastBreakpoint($breakpoint) {
+  $breakpoint: getBreakpoint($breakpoint);
+
+  @return getBreakpointIndex($breakpoint) == length($breakpoints);
+}
+
+@function getBreakpointMin($breakpoint) {
+  $breakpoint: getBreakpoint($breakpoint);
+
+  @if(isFirstBreakpoint($breakpoint) == true) {
+    @return null;
+  }
+
+  @return map-get(getPrevBreakpoint($breakpoint), "max") + 1px;
+}
+
+@function getBreakpointMax($breakpoint) {
+  $breakpoint: getBreakpoint($breakpoint);
+
+  @return map-get($breakpoint, "max");
+}
+
+//gets the total overall max width of the site
+@function getMaxWidth() {
+  @return map-get(nth($breakpoints, length($breakpoints)), "max");
+}
+
+@function mapColumnsBetweenBreakpoints($column, $from, $to, $doCeil:false) {
+  @if(getBreakpointColumns($from) == getBreakpointColumns($to)) {
+    @return $column;
+  }
+
+  @if $doCeil == true {
+    $fromRatio:$column / getBreakpointColumns($from);
+
+    @return max(ceil($fromRatio * getBreakpointColumns($to)), 1);
+  }
+
+  $fromRatio:$column / getBreakpointColumns($from);
+
+  @return max(round($fromRatio * getBreakpointColumns($to)), 0);
+}
+
+
+/////////////////
+// BEM methods //
+/////////////////
+@function parseBEMSelector($selector:null) {
+  @if($selector == null) {
+    $splitSelected: strSplit(nth(nth(&, 1), 1), unquote('.'));
+
+    @if(length($splitSelected) == 1) {
+      $selector: nth(nth(&, 1), 1);
+    } @else {
+      $selector: listSlice($splitSelected, 2);
+    }
+  }
+
+  $firstClass: getPseudo(nth($selector, 1));
+  $pseudoElement: null;
+
+  @if(length($firstClass) > 1) {
+    $pseudoElement: #{unquote('::')}#{nth($firstClass, 2)};
+  }
+
+  $firstClass: nth($firstClass, 1);
+
+  $baseClass: nth(strSplit(nth(strSplit($firstClass, $elementSeparator), 1), $modifierSeparator), 1);
+  $elementClass: listJoin(listSlice(strSplit(nth(strSplit($firstClass, $modifierSeparator), 1), $elementSeparator), 2), $elementSeparator);
+
+  @if($elementClass == '') {
+    $elementClass: null;
+  }
+
+  $modifiers:();
+
+  @each $val in $selector {
+    $val: getPseudo($val);
+
+    @if(length($val) > 1) {
+      $pseudoElement: #{unquote('::')}#{nth($val, 2)};
+    }
+
+    $modifier: listSlice(strSplit(nth($val, 1), $modifierSeparator), 2);
+
+    @if(length($modifier) == 1) {
+      $modifiers: map-merge($modifiers, (nth($modifier, 1): null));
+    } @else if(length($modifier) == 2) {
+      $modifiers: map-merge($modifiers, (nth($modifier, 1): nth($modifier, 2)));
+    }
+  }
+
+  @return (block: $baseClass, element: $elementClass, modifiers: $modifiers, pseudoElement: $pseudoElement);
+}
+
+@function getPseudo($selector) {
+  $pseudo: strSplit($selector, unquote('::'));
+  $pseudoElement: null;
+
+  @if(length($pseudo) > 1) {
+    @return nth($pseudo, 1) nth($pseudo, 2);
+  }
+
+  @return nth($pseudo, 1);
+}
+
+/*@function parseBEMSelector($selector:null) {
+  @if($selector == null) {
+    $splitSelected: strSplit(nth(nth(&, 1), 1), unquote('.'));
+
+    @if(length($splitSelected) == 1) {
+      $selector: nth(nth(&, 1), 1);
+    } @else {
+      $selector: listSlice($splitSelected, 2);
+    }
+  }
+
+  $baseClass: nth(strSplit(nth(strSplit(nth($selector, 1), $elementSeparator), 1), $modifierSeparator), 1);
+  $elementClass: listJoin(listSlice(strSplit(nth(strSplit(nth($selector, 1), $modifierSeparator), 1), $elementSeparator), 2), $elementSeparator);
+
+  @if($elementClass == '') {
+    $elementClass: null;
+  }
+
+  $modifiers:();
+
+  @each $val in $selector {
+    $modifier: listSlice(strSplit($val, $modifierSeparator), 2);
+
+    @if(length($modifier) == 1) {
+      $modifiers: map-merge($modifiers, (nth($modifier, 1): null));
+    } @else if(length($modifier) == 2) {
+      $modifiers: map-merge($modifiers, (nth($modifier, 1): nth($modifier, 2)));
+    }
+  }
+
+  @return (block: $baseClass, element: $elementClass, modifiers: $modifiers);
+}*/
+
+@function toBEMSelector($bem) {
+  //TODO deal with % classes
+
+  $baseClass: null;
+  $isPlaceholder: 0;
+
+  @if(str-slice(map-get($bem, block), 1, 1) == '%') {
+    $baseClass: map-get($bem, block);
+    $isPlaceholder: 1;
+  } @else {
+    $baseClass: unquote('.')#{map-get($bem, block)};
+  }
+
+  @if(map-has-key($bem, element) AND map-get($bem, element) != null) {
+    $baseClass: #{$baseClass}#{$elementSeparator}#{map-get($bem, element)};
+  }
+
+  $output: null;
+
+  @if(map-has-key($bem, modifiers) AND length(map-get($bem, modifiers)) > 0) {
+    $classes: ();
+
+    @each $key, $value in map-get($bem, modifiers) {
+      $class: null;
+
+      @if($isPlaceholder == 1) {
+        $class: $baseClass#{unquote(' &')}#{$modifierSeparator}#{$key};
+      } @else {
+        $class: $baseClass#{$modifierSeparator}#{$key};
+      }
+
+      @if($value != null) {
+        $class: $class#{$modifierSeparator}#{$value};
+      }
+
+      $classes: append($classes, $class);
+    }
+
+    $output: #{listJoin($classes, unquote(''))};
+
+  } @else {//no modifiers
+    $output: $baseClass;
+  }
+
+  @if(map-get($bem, pseudoElement) != null) {
+    @return #{listJoin($output map-get($bem, pseudoElement), unquote(''))};
+  }
+
+  @return $output;
+}
+//TODO support psuedo-elements e.g. ::-webkit-progress-bar
+@function modifyBEMSelector($changes, $base: null) {
+  @if($base == null) {
+    $base: parseBEMSelector();
+  }
+
+  $merged: map-merge($base, ());//clone base as starting point
+
+  //merge block name
+  @if(map-has-key($changes, block) AND map-get($changes, block) != null) {
+    $merged: map_merge($merged, (block: _bemMerge(map-get($base, block), map-get($changes, block), $elementSeparator)));
+  }
+
+  //merge element name
+  //TODO fix bug with adding element to selector that currently have none
+  @if(map-has-key($changes, element) AND map-get($changes, element) != null) {
+    $merged: map_merge($merged, (element: _bemMerge(map-get($base, element), map-get($changes, element), $elementSeparator)));
+  }
+
+  //merge modifiers
+  @if(map-has-key($changes, modifiers) AND length(map-get($changes, modifiers)) > 0) {
+    $merged: map-merge($merged, (modifiers: map-merge(map-get($base, modifiers), map-get($changes, modifiers))));
+  }
+
+  @return toBEMSelector($merged);
+}
+
+@mixin modifyBEMSelector($changes, $base: null) {
+  $selector: modifyBEMSelector($changes, $base: null);
+
+  @at-root {
+    #{$selector} {
+      @content;
+    }
+  }
+}
+
+@function _bemMerge($base, $change, $separator) {
+  @if(str-slice($change, 1, 1) == '&') {
+    @if($base != null) {
+      @return $base#{str-slice($change, 2)};
+    } @else {
+      @return str-slice($change, 2 + str-length($separator));
+    }
+  }
+
+  @return $change;
+}
+
+
+////////////////////
+// string methods //
+////////////////////
+
+//TODO make work with multi-character separators
+@function strSplit($string, $separator) {
+  // empty array/list
+  $split-arr: ();
+  // first index of separator in string
+  $index : str-index($string, $separator);
+  // loop through string
+  @while $index != null {
+    // get the substring from the first character to the separator
+    $item: str-slice($string, 1, $index - 1);
+    // push item to array
+    $split-arr: append($split-arr, $item);
+    // remove item and separator from string
+    $string: str-slice($string, $index + 1);
+    // find new index of separator
+    $index : str-index($string, $separator);
+  }
+  // add the remaining string to list (the last item)
+  $split-arr: append($split-arr, $string);
+
+  @return $split-arr;
+}
+
+@function strSplit($string, $separator: null, $limit: null) {
+  $string: unquote($string);
+
+  @if type-of($string) != "string" {
+    @error "`str-split` function expecting a string for $string; #{type-of($string)} given.";
+  }
+
+  $result: zip(());
+
+  @if not $separator {
+    @return ($string,);
+  }
+
+  @if $separator == "" {
+    @for $i from 1 through str-length($string) {
+      $result: append($result, str-slice($string, $i, $i));
+    }
+
+    @return $result;
+  }
+
+  $running: true;
+  $progress: $string;
+  $length: str-length($separator);
+
+  @while $running {
+    $index: str-index($progress, $separator);
+    @if $index {
+      $result: append($result, str-slice($progress, 1, ($index - 1)));
+      $progress: str-slice($progress, ($index + $length));
+    } @else {
+      $running: false;
+    }
+  }
+
+  $result: append($result, $progress);
+
+  @if $limit and $limit > 0 {
+    $limit: if($limit > length($result), length($result), $limit);
+    $return: ();
+    @for $i from 1 through $limit {
+      $return: append($return, nth($result, $i));
+    }
+
+    @return $return;
+  }
+
+  @return $result;
+}
+
+/*@function strSplit($string, $separator) {
+  // empty array/list
+  $split-arr: ();
+  // first index of separator in string
+  $index : str-index($string, $separator);
+  // loop through string
+  @while $index != null {
+    // get the substring from the first character to the separator
+    $item: str-slice($string, 1, $index - 1);
+    // push item to array
+    $split-arr: append($split-arr, $item);
+    // remove item and separator from string
+    $string: str-slice($string, $index + 1);
+    // find new index of separator
+    $index : str-index($string, $separator);
+  }
+  // add the remaining string to list (the last item)
+  $split-arr: append($split-arr, $string);
+
+  @return $split-arr;
+}*/
+
+//////////////////
+// list methods //
+//////////////////
+
+
+@function listContains($list, $value) {
+  @return type-of(index($list, $value)) == 'number';
+}
+
+// Based on method here: https://gist.github.com/myakura/9433723
+@function listSlice($list, $start: 1, $stop: length($list) + 1, $separator: null) {
+    $length: length($list);
+    $result: ();
+
+    // for supporting negative index we need to resolve indices
+    @if not listContains((space comma), $separator) {
+        $separator_orig: separator($list);
+        @if listContains((space comma), $separator_orig) {
+            $separator: $separator_orig;
+        }
+        @else {
+            $separator: space;
+        }
+    }
+
+    // start index
+    @if $start < 0 {
+        $start: $length + 1 + $start;
+    }
+    @if $start > $length {
+        @return $result;
+    }
+    @if $start == null {
+        $start: 1;
+    }
+
+    // stop index
+    @if $stop < 0 {
+        $stop: $length + 1 + $stop;
+    }
+    @if $stop > $length {
+        $stop: $length + 1;
+    }
+    @if $stop == null {
+        $stop: $length + 1;
+    }
+
+    //
+    @if($stop <= $start) {
+      @return $result;
+    }
+
+    // now take slice
+    $i: $start;
+
+    @while $i < $stop {
+        $result: append($result, nth($list, $i), $separator);
+        $i: $i + 1;
+    }
+
+    @return $result;
+}
+
+@function listJoin($list, $separator) {
+  $str:unquote('');
+  $first: true;
+
+  @each $val in $list {
+    @if($first != true) {
+      $str: $str#{$separator};
+    }
+
+    $str: $str#{$val};
+    $first: false;
+  }
+
+  @return $str;
+}
+
+//////////////////////
+// Number functions //
+//////////////////////
+
+@function sqrt($value) {
+  $r:strip-unit($value);
+  $unit: $value * 0;
+
+  $x0: 1;
+  $x1: $x0;
+
+  @for $i from 1 through 10 {
+    $x1: $x0 - ($x0 * $x0 - abs($r)) / (2 * $x0);
+    $x0: $x1;
+  }
+
+  //re-add units
+
+  @return $x1 + $unit;
+}

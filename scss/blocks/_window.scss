@@ -1,0 +1,59 @@
+@import '../theme';
+
+$cText: $cBodyCopy;
+$cBorder: $colour2;
+$cBG: $colour1;
+
+$cDarkText: $cText;
+$cDarkBorder: #a6a6a6;
+$cDarkBG: $colour7;
+
+.window {
+  background: $cBG;
+  border: 0.1rem solid $cBorder;
+  font-size: 2rem;
+  display: flex;
+  flex-flow: column;
+
+  text-decoration: none;
+  color: inherit;
+
+  /*@at-root {
+    a#{&} {
+      @include themeBlockInteraction();
+    }
+  }*/
+
+  &-head {
+    display: flex;
+    padding: $basePadding * 0.5;
+    border-bottom: 0.1rem solid $cBorder;
+    background: $colour7;
+    cursor: default;
+
+    font-size: 1.45rem;
+    line-height: 1;
+    white-space: nowrap;
+
+    &-options {
+
+
+      &-btn {
+        @extend .g-blankButton;
+      }
+    }
+  }
+
+  &-title {
+
+    font-weight: bold;
+    flex-grow: 1;
+  }
+
+  &-body {
+    padding: $basePadding/2 $basePadding/2 $basePadding;
+    line-height: 1.2;
+    position: relative;
+    flex-grow: 1;
+  }
+}

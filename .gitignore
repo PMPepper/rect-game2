@@ -1,0 +1,13 @@
+js/widgets/
+node_modules/
+js/reducers/_archive/
+js/helpers/_archive/
+js/components/containers/_archive/
+develop/
+js/components/highOrderComponents/_legacy/
+js/components/presentational/_legacy/
+js/components/factories/_legacy/
+js/components/containers/_legacy/
+scss/_legacy/
+scss/blocks/_legacy/
+build/
